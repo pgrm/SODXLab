@@ -6,3 +6,6 @@ priv
 *.plt
 *.metadata
 erlide.*
+*.project
+*.settings
+erl_crash.dump
