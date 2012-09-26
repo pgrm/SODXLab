@@ -1,0 +1,194 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+<<Open Questions>>
+\end_layout
+
+\begin_layout Standard
+<<Server1>>
+\end_layout
+
+\begin_layout Itemize
+Does this solution scale when the number of users increase? 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+No, since there is only one server.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+What happens if the server fails? 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+All clients are disconnected 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Are the messages guaranteed to be delivered in the order they were issued
+ (hint: think on several clients sending messages concurrently)? 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+No, they will be send to the clients in the order, the server receives them,
+ but this also doesn’t mean that they will arrive in this order at each
+ client.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Does it matter the time in which users join and leave the chat? 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+The user gets only messages which were received by the server after he/she
+ joined the chat and doesn’t get any messages which were received by the
+ server after leaving the chat.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Does this influence the order of message delivery? 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Depending on the implementation of the lists:map function, the new user
+ is added as Head to the list (first place).
+ In case more messages are sent at the same time, it is not clear in which
+ order they will be received by any other client.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+<<Server2>>
+\end_layout
+
+\begin_layout Itemize
+What are the advantages and disadvantages of this implementation regarding
+ the previous one? 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+If a server leaves, only clients connected to this server are offline, the
+ other clients still can communicate 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+What happens if a server fails? 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Clients connected to this server are offline.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Are the messages guaranteed to be delivered in order? 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+No 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Does it matter the order and time at which users join and leave the chat?
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+The user gets only messages which were received by the server after he/she
+ joined the chat and doesn’t get any messages which were received by the
+ server after leaving the chat.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+And for the servers, what happens if there are concurrent requests to join
+ or leave the system? 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+If the concurrent requests are to different points of the system the ServerLists
+ between the Servers will get inconsistent because two updates will be broadcast
+ed simultaneously and the last one received overwrites the previous one.
+ 
+\end_layout
+
+\end_deeper
+\end_body
+\end_document
