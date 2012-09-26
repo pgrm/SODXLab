@@ -8,4 +8,4 @@ priv
 erlide.*
 *.project
 *.settings
-erl_crash.dump
+*.dump
