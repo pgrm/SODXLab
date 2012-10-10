@@ -7,7 +7,7 @@
 %% Exported Functions
 %%
 -export([init/5]).
--define(deadlock, 5000).
+-define(deadlock, 60000).
 
 %%
 %% API Functions
