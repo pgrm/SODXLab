@@ -11,47 +11,63 @@
 %%
 %% API Functions
 %%
-init(_, Nodes) ->
-	open(Nodes).
+init(Id, Nodes) ->
+    open(Id, Nodes).
 
 %%
 %% Local Functions
 %%
-open(Nodes) ->
+open(MyId, Nodes) ->
     receive
 	{take, Master} ->
-	    Refs = requests(Nodes),
-	    wait(Nodes, Master, Refs, []);
-	{request, From, Ref} ->
+	    Refs = requests(MyId, Nodes),
+	    wait(MyId, Nodes, Master, Refs, [], []);
+	{request, From, Ref, _} ->
 	    From ! {ok, Ref},
-	    open(Nodes);
+	    open(MyId, Nodes);
 	stop ->
 	    ok
     end.
 
-requests(Nodes) ->
+requests(MyId, Nodes) ->
     lists:map(
       fun(P) ->
 	      R = make_ref(),
-	      P ! {request, self(), R},
-	      R
+	      P ! {request, self(), R, MyId},
+	      {R, P}
       end,
       Nodes).
 
-wait(Nodes, Master, [], Waiting) ->
+wait(MyId, Nodes, Master, [], _, Waiting) ->
     Master ! taken,
-    held(Nodes, Waiting);
-wait(Nodes, Master, Refs, Waiting) ->
+    held(MyId, Nodes, Waiting);
+wait(MyId, Nodes, Master, RefsNodes, OkRefsNodes, Waiting) ->
     receive
-	{request, From, Ref} ->
-	    wait(Nodes, Master, Refs, [{From, Ref}|Waiting]);
+	{request, From, Ref, RefId} ->
+	    {RefsNodes2, OkRefsNodes2, Waiting2} = request_while_waiting(MyId, RefsNodes, OkRefsNodes, Waiting, From, Ref, RefId),
+	    wait(MyId, Nodes, Master, RefsNodes2, OkRefsNodes2, Waiting2);
 	{ok, Ref} ->
-	    Refs2 = lists:delete(Ref, Refs),
-	    wait(Nodes, Master, Refs2, Waiting);
+	    RefNode = lists:keyfind(Ref, 1, RefsNodes),
+	    RefsNodes2 = lists:keydelete(Ref, 1, RefsNodes),
+	    wait(MyId, Nodes, Master, RefsNodes2, [RefNode|OkRefsNodes], Waiting);
 	release ->
 	    ok(Waiting),
-	    open(Nodes)
+	    open(MyId, Nodes)
     end.
+
+request_while_waiting(MyId, RefsNodes, OkRefsNodes, Waiting, From, Ref, RefId) ->
+    if
+	MyId < RefId ->
+	    Ret = {RefsNodes, OkRefsNodes, [{From, Ref}|Waiting]};
+	RefId < MyId ->
+	    From ! {ok, Ref},
+	    OkRefsNodes2 = lists:keydelete(From, 2, OkRefsNodes),
+	    RefsNodes2 = lists:keydelete(From, 2, RefsNodes),
+	    R = make_ref(),
+	    From ! {request, self(), R, MyId},
+	    Ret = {[{R, From}|RefsNodes2], OkRefsNodes2, Waiting}
+    end,
+    Ret.
 
 ok(Waiting) ->
     lists:map(
@@ -60,11 +76,11 @@ ok(Waiting) ->
       end,
       Waiting).
 
-held(Nodes, Waiting) ->
+held(MyId, Nodes, Waiting) ->
     receive
-	{request, From, Ref} ->
-	    held(Nodes, [{From, Ref}|Waiting]);
+	{request, From, Ref, _} ->
+	    held(MyId, Nodes, [{From, Ref}|Waiting]);
 	release ->
 	    ok(Waiting),
-	    open(Nodes)
+	    open(MyId, Nodes)
     end.
