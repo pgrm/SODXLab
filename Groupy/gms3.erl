@@ -22,7 +22,7 @@ initSlave(Id, Grp, Master) ->
         {view, N, State, Leader, Peers} ->
             erlang:monitor(process, Leader),
             Master ! {ok, State},
-            slave(Id, Master, Leader, N, State, Peers)
+            slave(Id, Master, Leader, N, {view, N, State, Leader, Peers}, Peers)
         after 1000 ->
             Master ! {error, "no reply from leader"}
     end.
@@ -31,13 +31,13 @@ slave(Id, Master, Leader, N, Last, Peers) ->
     receive
         {mcast, Msg} ->
             Leader ! {mcast, Msg},
-            slave(Id, Master, Leader, N, Last, Peers);
+            slave(Id, Master, Leader, N, {mcast, Msg}, Peers);
         {join, Peer} ->
             Leader ! {join, Peer},
-            slave(Id, Master, Leader, N, Last, Peers);
+            slave(Id, Master, Leader, N, {join, Peer}, Peers);
         {msg, N, Msg} ->
             Master ! {deliver, Msg},
-            slave(Id, Master, Leader, N + 1, Msg, Peers);
+            slave(Id, Master, Leader, N + 1, {msg, N, Msg}, Peers);
         {msg, I, _} when I < N ->
             slave(Id, Master, Leader, N, Last, Peers);    
         {view, _, _, _, View} ->
@@ -53,7 +53,7 @@ slave(Id, Master, Leader, N, Last, Peers) ->
 election(Id, Master, N, Last, [Leader|Rest]) ->
     if
         Leader == self() ->
-            bcast(Id, {msg, N, Last}, Rest),
+            bcast(Id, Last, Rest),
             leader(Id, Master, N, Rest);
         true ->
             erlang:monitor(process, Leader),
