@@ -3,7 +3,7 @@
 
 start(Id) ->
     Self = self(),
-spawn_link(fun()-> init(Id, Self) end).
+    spawn_link(fun()-> init(Id, Self) end).
 
 init(Id, Master) ->
     leader(Id, Master, []).
