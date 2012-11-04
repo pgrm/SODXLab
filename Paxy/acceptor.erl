@@ -1,7 +1,7 @@
 -module(acceptor).
 -export([start/3]).
 
--define(delay, 200).
+-define(delay, 2000).
 
 start(Name, Seed, PanelId) ->
     spawn(fun() -> init(Name, Seed, PanelId) end).

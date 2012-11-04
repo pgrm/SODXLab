@@ -3,7 +3,7 @@
 
 -define(timeout, 2000).
 -define(backoff, 10).
--define(delay, 200).
+-define(delay, 2000).
 
 start(Name, Proposal, Acceptors, Seed, PanelId) ->
     spawn(fun() -> init(Name, Proposal, Acceptors, Seed, PanelId) end).
