@@ -11,7 +11,7 @@ start(Seed) ->
     "Acceptor 4", "Acceptor 5"],
     AccRegister = [a, b, c, d, e],
     ProposerNames = ["Proposer 1", "Proposer 2", "Proposer 3", "Proposer 4"],
-    PropInfo = [{kurtz, ?RED, 3}, {kilgore, ?GREEN, 2}, {andy, ?YELLOW, 7}, {willard, ?BLUE, 10}],
+    PropInfo = [{kurtz, ?GREEN, 3}, {kilgore, ?BLUE, 2}, {cillard, ?YELLOW, 7}, {andy, ?RED, 10}],
     % computing panel heights
     AccPanelHeight = length(AcceptorNames)*50 + 20, %plus the spacer value
     PropPanelHeight = length(ProposerNames)*50 + 20,

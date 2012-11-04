@@ -3,6 +3,7 @@
 
 -define(timeout, 2000).
 -define(backoff, 10).
+-define(delay, 200).
 
 start(Name, Proposal, Acceptors, Seed, PanelId) ->
     spawn(fun() -> init(Name, Proposal, Acceptors, Seed, PanelId) end).
@@ -13,6 +14,9 @@ init(Name, Proposal, Acceptors, Seed, PanelId) ->
     round(Name, ?backoff, Round, Proposal, Acceptors, PanelId).
 
 round(Name, Backoff, Round, Proposal, Acceptors, PanelId) ->
+    R = random:uniform(?delay),
+    timer:sleep(R),
+
     % Update gui
     io:format("[Proposer ~w] set gui: Round ~w Proposal ~w~n",
     [Name, Round, Proposal]),

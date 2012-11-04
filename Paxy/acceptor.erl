@@ -1,6 +1,8 @@
 -module(acceptor).
 -export([start/3]).
 
+-define(delay, 200).
+
 start(Name, Seed, PanelId) ->
     spawn(fun() -> init(Name, Seed, PanelId) end).
 
@@ -12,6 +14,9 @@ init(Name, Seed, PanelId) ->
     acceptor(Name, Promise, Voted, Accepted, PanelId).
 
 acceptor(Name, Promise, Voted, Accepted, PanelId) ->
+    R = random:uniform(?delay),
+    timer:sleep(R),
+
     receive
         {prepare, Proposer, Round} ->
             case order:gr(Round, Promise) of
