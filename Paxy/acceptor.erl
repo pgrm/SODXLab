@@ -8,14 +8,13 @@ start(Name, Seed, PanelId) ->
 
 init(Name, Seed, PanelId) ->
     random:seed(Seed, Seed, Seed),
-    Promise = order:null(),
-    Voted = order:null(),
-    Accepted = na,
+
+    {Promise, Voted, Accepted, _} = pers:read(Name),
     acceptor(Name, Promise, Voted, Accepted, PanelId).
 
 acceptor(Name, Promise, Voted, Accepted, PanelId) ->
-    R = random:uniform(?delay),
-    timer:sleep(R),
+    %R = random:uniform(?delay),
+    %timer:sleep(R),
 
     receive
         {prepare, Proposer, Round} ->
@@ -33,6 +32,7 @@ acceptor(Name, Promise, Voted, Accepted, PanelId) ->
                             [Name, Voted, Round, Accepted]),
                             PanelId ! {updateAcc, "Round voted: " ++ lists:flatten(io_lib:format("~p", [Voted])), "Cur. Promise: " ++ lists:flatten(io_lib:format("~p", [Round])), Accepted}
                     end,
+                    pers:store(Name, Round, Voted, Accepted, PanelId),
                     acceptor(Name, Round, Voted, Accepted, PanelId);
                 false ->
                     Proposer ! {sorry, Round},
@@ -48,12 +48,14 @@ acceptor(Name, Promise, Voted, Accepted, PanelId) ->
                             io:format("[Acceptor ~w] set gui: voted ~w promise ~w colour ~w~n",
                             [Name, Round, Promise, Proposal]),
                             PanelId ! {updateAcc, "Round voted: " ++ lists:flatten(io_lib:format("~p", [Round])), "Cur. Promise: " ++ lists:flatten(io_lib:format("~p", [Promise])), Proposal},
+                            pers:store(Name, Promise, Round, Proposal, PanelId),
                             acceptor(Name, Promise, Round, Proposal, PanelId);
                         false ->
                             % Update gui
                             io:format("[Acceptor ~w] set gui: voted ~w promise ~w colour ~w~n",
                             [Name, Round, Promise, Proposal]),
                             PanelId ! {updateAcc, "Round voted: " ++ lists:flatten(io_lib:format("~p", [Round])), "Cur. Promise: " ++ lists:flatten(io_lib:format("~p", [Promise])), Proposal},
+                            pers:store(Name, Promise, Voted, Accepted, PanelId),
                             acceptor(Name, Promise, Voted, Accepted, PanelId)
                     end;
                 false ->

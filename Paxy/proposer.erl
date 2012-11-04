@@ -14,8 +14,8 @@ init(Name, Proposal, Acceptors, Seed, PanelId) ->
     round(Name, ?backoff, Round, Proposal, Acceptors, PanelId).
 
 round(Name, Backoff, Round, Proposal, Acceptors, PanelId) ->
-    R = random:uniform(?delay),
-    timer:sleep(R),
+    %R = random:uniform(?delay),
+    %timer:sleep(R),
 
     % Update gui
     io:format("[Proposer ~w] set gui: Round ~w Proposal ~w~n",
@@ -107,4 +107,9 @@ accept(Round, Proposal, Acceptors) ->
     lists:map(Fun, Acceptors).
 
 send(Name, Message) ->
-    Name ! Message.
+    case whereis(Name) of
+        undefined ->
+            down;
+        Pid ->
+            Pid ! Message
+    end.
